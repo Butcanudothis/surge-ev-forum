@@ -4,16 +4,22 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&family=Roboto:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&family=Roboto:ital,wght@0,300;0,400;1,300&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="style.css" />
     <title>Surge EV Updates</title>
   </head>
   <body>
-    <header class = "header">
-      <img src="logo.png" alt="Surge EV logo" width="68" />
-      <h1>Surge EV Updates</h1>
+    <header class="header">
+      <div class="logo">
+        <img src="logo.png" alt="Surge EV logo" width="68" />
+        <h1>Surge EV Updates</h1>
+      </div>
+
       <button>Share a fact</button>
     </header>
     <form class="factForm">
@@ -29,7 +35,7 @@
       <button>Post</button>
     </form>
 
-    <main>
+    <main class ="main">
       <aside>
         <ul>
           <li><button>All</button></li>
@@ -41,13 +47,14 @@
       <section>
         <ul>
           <li class="post">
-            <p >
+            <p>
               React is being developed by Meta (formerly facebook)
               <a href="http://google.com">show full post</a>
-              <span class="tag">#technology#</span>
             </p>
-            <div>
-
+            <span class="tag" style="background-color: #865dff"
+              >#technology#</span
+            >
+            <div class="reactionButtons">
               <button>👍 <strong>24</strong></button>
               <button>🤯 <strong>24</strong></button>
               <button>⛔️ <strong>24</strong></button>
@@ -57,10 +64,11 @@
             <p>
               React is a JavaScript library for building user interfaces
               <a href="http://google.com">show full post</a>
-              <span class="tag">#technology#</span>
             </p>
-            <div>
-
+            <span class="tag" style="background-color: #865dff">
+              #technology#</span
+            >
+            <div class="reactionButtons">
               <button>👍 <strong>24</strong></button>
               <button>🤯 <strong>24</strong></button>
               <button>⛔️ <strong>24</strong></button>
@@ -70,8 +78,8 @@
       </section>
     </main>
     <footer>
-        <p>© 2023 Surge EV. All rights reserved.</p>
-        <p>built with ❤️ by Akshay Varma</p>
+      <p>© 2023 Surge EV. All rights reserved.</p>
+      <p>built with ❤️ by Akshay Varma</p>
     </footer>
   </body>
 </html>
