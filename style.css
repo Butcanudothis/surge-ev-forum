@@ -91,7 +91,7 @@ h1 {
   font-size: 18px;
   margin-right: 18px;;
 }
-.post {
+/* .post {
   font-size: 20px;
   line-height: 1.4;
   font-family: sans-serif;
@@ -104,6 +104,17 @@ h1 {
   letter-spacing: -1px;
   border-radius: 16px;
 
+} */
+
+.post {
+  font-size: 20px;
+  line-height: 1.4;
+  font-family: sans-serif;
+  margin-bottom: 16px;
+  background-color: #393e46;
+  padding: 16px 24px;
+  letter-spacing: -1px;
+  border-radius: 16px;
 }
 
 @media(max-width: 1200px) {
@@ -215,4 +226,15 @@ footer {
   .factForm input, .factForm select {
     width: auto;
   }
+}
+.post-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+.post-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: 16px;
+  border-radius: 10px;
 }
