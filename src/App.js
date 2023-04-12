@@ -46,19 +46,7 @@ function App() {
   return (
     <>
       {/* header */}
-      <header className="header">
-        <div className="logo">
-          <img src="logo.png" alt="Surge EV logo" />
-          <h1>Surge EV Updates</h1>
-        </div>
-
-        <button
-          className="btn btn-large shareFactButton"
-          onClick={() => setShowForm((show) => !show)}
-        >
-          Share a fact
-        </button>
-      </header>
+      <Header showForm = {showForm} setShowForm = {setShowForm}/>
 
       {showForm ? <NewPostForm /> : null}
 
@@ -66,8 +54,25 @@ function App() {
         <CategoryFilter />
         <PostList />
       </main>
+      <Footer />
     </>
   );
+}
+
+function Header({showForm, setShowForm}) {
+return <header className="header">
+<div className="logo">
+  <img src="logo.png" alt="Surge EV logo" />
+  <h1>Surge EV Updates</h1>
+</div>
+
+<button
+  className="btn btn-large shareFactButton"
+  onClick={() => setShowForm((show) => !show)}
+>
+  {showForm ? "Close" : "Share an update"}
+</button>
+</header>
 }
 
 function NewPostForm() {
@@ -156,4 +161,11 @@ function Post({ post }) {
     </div>
   );
 }
+function Footer() {
+ return <footer>
+ <p>© 2023 Surge EV. All rights reserved.</p>
+ <p>built with ❤️ by Akshay Varma</p>
+</footer>
+}
+
 export default App;
