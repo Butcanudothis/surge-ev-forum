@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import "./style.css";
+import supabase from "./supabase";
+
 
 const initialFacts = [
   {
@@ -7,35 +9,10 @@ const initialFacts = [
     text: "React is being developed by Meta (formerly facebook)",
     source: "https://opensource.fb.com/",
     category: "technology",
-    votesInteresting: 24,
-    votesMindblowing: 9,
-    votesFalse: 4,
+    votesLikes: 24,
+    votesMindBlown: 9,
+    votesNegatives: 4,
     createdIn: 2021,
-    image_src:
-      "https://reactnativecode.com/wp-content/uploads/2018/02/Default_Image_Thumbnail.png",
-  },
-  {
-    id: 2,
-    text: "Millennial dads spend 3 times as much time with their kids than their fathers spent with them. In 1982, 43% of fathers had never changed a diaper. Today, that number is down to 3%",
-    source:
-      "https://www.mother.ly/parenting/millennial-dads-spend-more-time-with-their-kids",
-    category: "society",
-    votesInteresting: 11,
-    votesMindblowing: 2,
-    votesFalse: 0,
-    createdIn: 2019,
-    image_src:
-      "https://reactnativecode.com/wp-content/uploads/2018/02/Default_Image_Thumbnail.png",
-  },
-  {
-    id: 3,
-    text: "Lisbon is the capital of Portugal",
-    source: "https://en.wikipedia.org/wiki/Lisbon",
-    category: "society",
-    votesInteresting: 8,
-    votesMindblowing: 3,
-    votesFalse: 1,
-    createdIn: 2015,
     image_src:
       "https://reactnativecode.com/wp-content/uploads/2018/02/Default_Image_Thumbnail.png",
   },
@@ -44,6 +21,30 @@ const initialFacts = [
 function App() {
   const [showForm, setShowForm] = useState(false);
   const [posts, setPosts] = useState(initialFacts);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentCategory, setCurrentCategory] = useState("all");
+  useEffect(() => {
+    async function getPosts() {
+      setIsLoading(true);
+
+      let query = supabase.from("posts")
+      .select("*");
+      if (currentCategory !== "all") {
+        query = query.eq("category", currentCategory);
+      }
+      const { data: posts, error } = await query.order("votesLikes", { ascending: false }).limit(1000);
+
+        if (!error) {
+        setPosts(posts);
+        } else {
+          alert("Error loading posts");
+        }
+        setIsLoading(false);
+    }
+    getPosts();
+  }, [currentCategory]);
+
+
 
   return (
     <>
@@ -53,12 +54,16 @@ function App() {
       {showForm ? <NewPostForm setPosts={setPosts} setShowForm={setShowForm} /> : null}
 
       <main className="main">
-        <CategoryFilter />
-        <PostList posts={posts}/>
+      <CategoryFilter setCurrentCategory={setCurrentCategory}/>
+        {isLoading ? loader() : <PostList posts={posts} setPosts={setPosts}/>}
       </main>
       <Footer />
     </>
   );
+}
+
+function loader() {
+  return <p className="message">Loading...</p>;
 }
 
 function Header({ showForm, setShowForm }) {
@@ -79,21 +84,21 @@ function Header({ showForm, setShowForm }) {
   );
 }
 const CATEGORIES = [
-  { name: "Motor tech", color: "#f87171" },
-  { name: "Battery tech", color: "#60a5fa" },
+  { name: "Motor Tech", color: "#f87171" },
+  { name: "Battery Tech", color: "#60a5fa" },
   { name: "Charging", color: "#34d399" },
-  { name: "EV performance", color: "#f59e0b" },
-  { name: "Body design", color: "#6b7280" },
-  { name: "Safety", color: "#9f7aea" },
-  { name: "Range & efficiency", color: "#10b981" },
+  { name: "EV Performance", color: "#f59e0b" },
+  { name: "Body Design", color: "#6b7280" },
+  // { name: "Safety", color: "#9f7aea" },
+  // { name: "Range & Efficiency", color: "#10b981" },
   { name: "Sustainability", color: "#22d3ee" },
-  { name: "Industry news", color: "#a3e635" },
-  { name: "Customer stories", color: "#f472b6" },
-  { name: "Maintenance", color: "#fbbf24" },
+  // { name: "Industry News", color: "#a3e635" },
+  { name: "Customer Stories", color: "#f472b6" },
+  // { name: "Maintenance", color: "#fbbf24" },
   { name: "Partnerships", color: "#4b5563" },
-  { name: "Company news", color: "#8b5cf6" },
-  { name: "Investor relations", color: "#dc2626" },
-  { name: "Government updates", color: "#059669" },
+  // { name: "Company News", color: "#8b5cf6" },
+  // { name: "Investor Relations", color: "#dc2626" },
+  // { name: "Government Updates", color: "#059669" },
 ];
 function isValidHttpUrl(string) {
   let url;
@@ -107,32 +112,29 @@ function isValidHttpUrl(string) {
 }
 
 
-function NewPostForm({setPosts , setShowForm}) {
+ function NewPostForm({setPosts , setShowForm}) {
   const [text, setText] = useState("");
   const [category, setCategory] = useState("");
   const [source, setSource] = useState("");
   const [image, setImage] = useState("");
-
-  function handleSubmit(event) {
+  const [uploading, setUploading] = useState(false);
+  async function handleSubmit(event) {
     event.preventDefault();
     console.log("submit");
     // check if data is valid
    if (text && category && isValidHttpUrl(source) && isValidHttpUrl(image) && text.length <= 200) {
-    const newPost = {
-      id: Math.floor(Math.random() * 1000),
-      text: text,
-      source: source,
-      category: category,
-      votesInteresting: 0,
-      votesMindblowing: 0,
-      votesFalse: 0,
-      createdIn: new Date().getFullYear(),
-      image_src: image,
-    };
 
+    setUploading(true);
+    const { data: newPost, error } = await supabase
+    .from("posts")
+    .insert({text: text, source:source, category:category, image_src: image})
+    .select();
+    setUploading(false);
+
+    console.log(newPost);
     // create new post object
     // add new post to the UI: add the post to state
-   setPosts((posts) => [newPost, ...posts]);
+    if (!error) setPosts((posts) => [newPost[0], ...posts]);
     // reset input fields
     setText("");
     setCategory("");
@@ -156,6 +158,7 @@ function NewPostForm({setPosts , setShowForm}) {
         onChange={(event) => {
           setText(event.target.value);
         }}
+        disabled={uploading}
       />
       <span style={
         text.length > 200 ? { color: "red" } : { color: "white" }
@@ -167,6 +170,7 @@ function NewPostForm({setPosts , setShowForm}) {
         onChange={(event) => {
           setSource(event.target.value);
         }}
+        disabled={uploading}
       />
       <input
         type="text"
@@ -175,12 +179,14 @@ function NewPostForm({setPosts , setShowForm}) {
         onChange={(event) => {
           setImage(event.target.value);
         }}
+        disabled={uploading}
       />
       <select
         value={category}
         onChange={(event) => {
           setCategory(event.target.value);
         }}
+        disabled={uploading}
       >
         <option value="">Choose Category</option>
         {CATEGORIES.map((category) => (
@@ -189,23 +195,28 @@ function NewPostForm({setPosts , setShowForm}) {
           </option>
         ))}
       </select>
-      <button className="btn btn-large">Post</button>
+      <button className="btn btn-large"
+      disabled={uploading}
+      >Post</button>
     </form>
   );
 }
 
-function CategoryFilter() {
+function CategoryFilter({setCurrentCategory}) {
   return (
-    <aside>
+    <aside className="category-filter">
       <ul>
         <li>
-          <button className="btn btn-all-categories">All</button>
+          <button className="btn btn-all-categories"
+          onClick={() => setCurrentCategory("all")}
+          >All</button>
         </li>
         {CATEGORIES.map((category) => (
           <li key={category.name} className="categories">
             <button
               className="btn btn-categories"
               style={{ backgroundColor: category.color }}
+              onClick={() => setCurrentCategory(category.name)}
             >
               {category.name}
             </button>
@@ -220,19 +231,42 @@ function getCategoryColor(categoryName) {
   return category ? category.color : "#121212";
 }
 
-function PostList({ posts }) {
+function PostList({ posts ,setPosts}) {
+
+  if (posts.length === 0) {
+    return (
+      <section className="message">
+        <p>No posts to show. Create the first one!</p>
+      </section>
+    );
+  }
   return (
     <section>
       <ul className="postList">
         {posts.map((post) => (
-          <Post key={post.id} post={post} />
+          <Post key={post.id} post={post} setPosts={setPosts}/>
         ))}
       </ul>
     </section>
   );
 }
 
-function Post({ post }) {
+function Post({ post, setPosts }) {
+  const [isUpdating, setIsUpdating] = useState(false);
+  const isPopular = post.votesLikes - post.votesNegatives >= 10;
+  async function handleVotes(voteType) {
+    setIsUpdating(true);
+    const { data: updatedPost, error } =
+    await supabase
+      .from("posts")
+      .update({ [voteType]: post[voteType] + 1 })
+      .eq("id", post.id)
+      .select();
+    setIsUpdating(false);
+    console.log(updatedPost);
+    if(!error) setPosts((posts) => posts.map((p) => p.id === post.id ? updatedPost[0] : p));
+  }
+
   return (
     <div className="post-wrapper">
       {" "}
@@ -240,10 +274,12 @@ function Post({ post }) {
         <img className="post-image" src={post.image_src} alt="Post"></img>
         <p>
           {post.text}
-          <a className="source" href="http://google.com">
+          <a className="source" href={post.source}>
             show full post
           </a>
         </p>
+        <div className="post-info">
+        {isPopular ? <span className="popular"> Popular 🔥</span> : null}
         <span
           className="tag"
           style={{ backgroundColor: getCategoryColor(post.category) }}
@@ -251,19 +287,24 @@ function Post({ post }) {
           {post.category}
         </span>
         <div className="reactionButtons">
-          <button>👍{post.votesInteresting}</button>
-          <button>🤯{post.votesMindblowing}</button>
-          <button>⛔️{post.votesFalse}</button>
+          <button onClick={()=>handleVotes("votesLikes")} disabled={isUpdating}
+          >👍{post.votesLikes}</button>
+          <button onClick={()=>handleVotes("votesMindBlown")} disabled={isUpdating}
+          >🤯{post.votesMindBlown}</button>
+          <button onClick={()=>handleVotes("votesNegatives")} disabled={isUpdating}
+          >⛔️{post.votesNegatives}</button>
         </div>
-      </li>{" "}
+        </div>
+      </li> {" "}
     </div>
+
   );
 }
 function Footer() {
   return (
     <footer>
-      <p>© 2023 Surge EV. All rights reserved.</p>
-      <p>built with ❤️ by Akshay Varma</p>
+      <p>© 2023 Surge EV. All rights reserved.
+      Built with ❤️ by Akshay Varma</p>
     </footer>
   );
 }
