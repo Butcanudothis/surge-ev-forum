@@ -51,6 +51,7 @@ body {
 @media(max-width: 900px) {
   .main {
     grid-template-columns: 1fr;
+    height: auto;
   }
 }
 /* add padding to the left side of the scroll bar */
